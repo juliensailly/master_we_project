@@ -241,9 +241,11 @@ describe('# ArticleDetail', () => {
     }))
     await server.waitForRequest('GET', '/api/articles/markdown')
 
-    const select = screen.getByTestId('language-select')
-    expect(select).toBeInTheDocument()
+    const selectElement = screen.getByTestId('language-select')
+    expect(selectElement).toBeInTheDocument()
 
+    // Type assertion for HTMLSelectElement
+    const select = selectElement as HTMLSelectElement
     expect(select.options.length).toBeGreaterThan(1)
     expect(select.options[0].value).toBe('')
     expect(select.options[0].text.trim()).toBe('Original')
