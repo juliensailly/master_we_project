@@ -12,6 +12,27 @@
   </div>
 
   <div class="container page">
+    <!-- TTS Controls -->
+    <div class="tts-controls" data-testid="tts-controls">
+      <button
+        class="btn btn-sm btn-outline-primary tts-btn"
+        :disabled="!article?.body"
+        data-testid="tts-speak-button"
+        @click="handleSpeak"
+      >
+        <span v-if="isSpeaking && !isPaused">🔊 Stop</span>
+        <span v-else-if="isPaused">▶️ Resume</span>
+        <span v-else>🔊 Listen to Article</span>
+      </button>
+      <div
+        v-if="ttsError"
+        class="tts-error"
+        data-testid="tts-error"
+      >
+        {{ ttsError }}
+      </div>
+    </div>
+
     <!-- Translation Controls -->
     <div class="translation-controls" data-testid="translation-controls">
       <div class="translation-bar">
@@ -102,6 +123,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTextToSpeech } from 'src/composable/use-text-to-speech'
 import { getSupportedLanguages, useTranslation } from 'src/composable/use-translation'
 import type { SupportedLanguage } from 'src/composable/use-translation'
 import marked from 'src/plugins/marked'
@@ -114,6 +136,16 @@ const slug = route.params.slug as string
 const article: Article = reactive(await api.articles.getArticle(slug).then(res => res.data.article))
 
 const articleHandledBody = computed(() => marked(article.body))
+
+// TTS state
+const {
+  speak,
+  stop,
+  resume,
+  isSpeaking,
+  isPaused,
+  error: ttsError,
+} = useTextToSpeech()
 
 // Translation state
 const {
@@ -146,6 +178,20 @@ const displayBody = computed(() => {
   }
   return articleHandledBody.value
 })
+
+// TTS functions
+function handleSpeak() {
+  if (isSpeaking.value && !isPaused.value) {
+    stop()
+  }
+  else if (isPaused.value) {
+    resume()
+  }
+  else {
+    const textToRead = `${article.title}. ${article.body}`
+    speak(textToRead)
+  }
+}
 
 async function translateArticle() {
   if (!selectedLanguage.value)
@@ -183,6 +229,32 @@ function updateArticle(newArticle: Article) {
 </script>
 
 <style scoped>
+.tts-controls {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+}
+
+.tts-btn {
+  margin: 0;
+}
+
+.tts-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tts-error {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
 .translation-controls {
   margin-bottom: 2rem;
   padding: 1rem;
