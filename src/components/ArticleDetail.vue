@@ -180,6 +180,27 @@ const displayBody = computed(() => {
 })
 
 // TTS functions
+function getTTSLanguage(translationLang: string): string {
+  const languageMap: Record<string, string> = {
+    fr: 'fr-FR',
+    es: 'es-ES',
+    de: 'de-DE',
+    it: 'it-IT',
+    pt: 'pt-PT',
+    ru: 'ru-RU',
+    ja: 'ja-JP',
+    ko: 'ko-KR',
+    zh: 'zh-CN',
+    ar: 'ar-SA',
+    hi: 'hi-IN',
+    nl: 'nl-NL',
+    pl: 'pl-PL',
+    tr: 'tr-TR',
+    sv: 'sv-SE',
+  }
+  return languageMap[translationLang] || 'en-US'
+}
+
 function handleSpeak() {
   if (isSpeaking.value && !isPaused.value) {
     stop()
@@ -196,7 +217,13 @@ function handleSpeak() {
       ? translatedBody.value
       : article.body
     const textToRead = `${titleToRead}. ${bodyToRead}`
-    speak(textToRead)
+
+    // Use the translated language if article is translated, otherwise use English
+    const language = isTranslated.value && selectedLanguage.value
+      ? getTTSLanguage(selectedLanguage.value)
+      : 'en-US'
+
+    speak(textToRead, language)
   }
 }
 
