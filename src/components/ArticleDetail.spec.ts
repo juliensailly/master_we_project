@@ -241,7 +241,7 @@ describe('# ArticleDetail', () => {
     }))
     await server.waitForRequest('GET', '/api/articles/markdown')
 
-    const select = screen.getByTestId('language-select')
+    const select = screen.getByTestId('language-select') as HTMLSelectElement
     expect(select).toBeInTheDocument()
 
     expect(select.options.length).toBeGreaterThan(1)
