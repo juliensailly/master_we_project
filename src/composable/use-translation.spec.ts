@@ -145,14 +145,17 @@ describe('useTranslation', () => {
     it('should handle invalid response format', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ invalid: 'format' }),
+        json: async () => ({
+          responseStatus: '500',
+          responseDetails: 'Translation failed',
+        }),
       })
 
       const { translate, error } = useTranslation()
 
       await translate('Hello', 'es')
 
-      expect(error.value).toBe('Invalid response format from translation service')
+      expect(error.value).toBe('Translation failed')
     })
 
     it('should handle quota exceeded error', async () => {
@@ -165,7 +168,27 @@ describe('useTranslation', () => {
 
       await translate('Hello', 'es')
 
-      expect(error.value).toBe('Translation quota exceeded. Please try again later.')
+      expect(error.value).toBe('Translation quota exceeded or invalid language pair. Please try again later.')
+    })
+
+    it('should reject response with error message in translatedText field', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          responseData: {
+            translatedText: 'PLEASE SELECT TWO DISTINCT LANGUAGES',
+          },
+          responseStatus: '403',
+          responseDetails: 'PLEASE SELECT TWO DISTINCT LANGUAGES',
+        }),
+      })
+
+      const { translate, error, translatedText } = useTranslation()
+
+      await translate('Hello', 'es')
+
+      expect(error.value).toBe('Translation quota exceeded or invalid language pair. Please try again later.')
+      expect(translatedText.value).toBe('')
     })
 
     it('should set isTranslating to true during translation', async () => {

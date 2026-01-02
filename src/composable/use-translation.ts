@@ -127,14 +127,22 @@ export function useTranslation(): UseTranslationReturn {
 
         const data = await response.json() as {
           responseData?: { translatedText?: string }
-          responseStatus?: number
+          responseStatus?: number | string
+          responseDetails?: string
+        }
+
+        // Check if the API response status is successful (200)
+        // The API can return HTTP 200 but have responseStatus 403 or other errors
+        if (data.responseStatus !== 200 && data.responseStatus !== '200') {
+          const errorMessage = data.responseDetails || data.responseData?.translatedText || 'Translation failed'
+          if (data.responseStatus === 403 || data.responseStatus === '403') {
+            throw new Error('Translation quota exceeded or invalid language pair. Please try again later.')
+          }
+          throw new Error(errorMessage)
         }
 
         if (data.responseData?.translatedText) {
           translatedChunks.push(data.responseData.translatedText)
-        }
-        else if (data.responseStatus === 403) {
-          throw new Error('Translation quota exceeded. Please try again later.')
         }
         else {
           throw new Error('Invalid response format from translation service')
