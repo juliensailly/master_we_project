@@ -2,6 +2,9 @@
 
 > **Application développée dans le cadre d'un projet de Master, par Ewen Carré et Julien Sailly.**
 
+> [!NOTE]
+> Vous pouvez consulter le projet en cliquant sur le lien suivant : [https://master-we-project.vercel.app](https://master-we-project.vercel.app)
+
 ## Installation et lancement
 
 ### Prérequis
