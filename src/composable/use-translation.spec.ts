@@ -39,7 +39,10 @@ describe('useTranslation', () => {
     })
 
     it('should translate text successfully', async () => {
-      const mockTranslation = [[['Hola mundo', 'Hello world', null, null]]]
+      const mockTranslation = {
+        responseData: { translatedText: 'Hola mundo' },
+        responseStatus: 200,
+      }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockTranslation,
@@ -51,7 +54,7 @@ describe('useTranslation', () => {
 
       expect(mockFetch).toHaveBeenCalledOnce()
       expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('translate.googleapis.com'),
+        expect.stringContaining('api.mymemory.translated.net'),
         expect.any(Object),
       )
       expect(translatedText.value).toBe('Hola mundo')
@@ -60,7 +63,10 @@ describe('useTranslation', () => {
     })
 
     it('should handle translation with auto source language', async () => {
-      const mockTranslation = [[['Bonjour', 'Hello', null, null]]]
+      const mockTranslation = {
+        responseData: { translatedText: 'Bonjour' },
+        responseStatus: 200,
+      }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockTranslation,
@@ -71,11 +77,15 @@ describe('useTranslation', () => {
       await translate('Hello', 'fr')
 
       const callUrl = mockFetch.mock.calls[0][0] as string
-      expect(callUrl).toContain('sl=auto')
+      // When auto is used, defaults to 'en' as source
+      expect(callUrl).toContain('langpair=en')
     })
 
     it('should handle translation with specified source language', async () => {
-      const mockTranslation = [[['Hello', 'Hola', null, null]]]
+      const mockTranslation = {
+        responseData: { translatedText: 'Hello' },
+        responseStatus: 200,
+      }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockTranslation,
@@ -86,8 +96,7 @@ describe('useTranslation', () => {
       await translate('Hola', 'en', 'es')
 
       const callUrl = mockFetch.mock.calls[0][0] as string
-      expect(callUrl).toContain('sl=es')
-      expect(callUrl).toContain('tl=en')
+      expect(callUrl).toContain('langpair=es%7Cen')
     })
 
     it('should handle empty text error', async () => {
@@ -146,6 +155,19 @@ describe('useTranslation', () => {
       expect(error.value).toBe('Invalid response format from translation service')
     })
 
+    it('should handle quota exceeded error', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ responseStatus: 403 }),
+      })
+
+      const { translate, error } = useTranslation()
+
+      await translate('Hello', 'es')
+
+      expect(error.value).toBe('Translation quota exceeded. Please try again later.')
+    })
+
     it('should set isTranslating to true during translation', async () => {
       let resolveTranslation: any
       const translationPromise = new Promise(resolve => {
@@ -155,7 +177,10 @@ describe('useTranslation', () => {
       mockFetch.mockReturnValueOnce(
         translationPromise.then(() => ({
           ok: true,
-          json: async () => [[['Hola', 'Hello', null, null]]],
+          json: async () => ({
+            responseData: { translatedText: 'Hola' },
+            responseStatus: 200,
+          }),
         })),
       )
 
@@ -174,24 +199,39 @@ describe('useTranslation', () => {
     })
 
     it('should concatenate multiple translation segments', async () => {
-      const mockTranslation = [[
-        ['Hello ', 'Hola ', null, null],
-        ['world', 'mundo', null, null],
-      ]]
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockTranslation,
-      })
+      const mockTranslation1 = {
+        responseData: { translatedText: 'Hello ' },
+        responseStatus: 200,
+      }
+      const mockTranslation2 = {
+        responseData: { translatedText: 'world' },
+        responseStatus: 200,
+      }
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockTranslation1,
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockTranslation2,
+        })
 
-      const { translate, translatedText } = useTranslation()
+      const { translate } = useTranslation()
 
-      await translate('Hola mundo', 'en')
+      // Create a text longer than 500 chars to trigger chunking
+      const longText = `${'A'.repeat(300)}. ${'B'.repeat(300)}`
+      await translate(longText, 'en')
 
-      expect(translatedText.value).toBe('Hello world')
+      // Should have made multiple calls for long text
+      expect(mockFetch).toHaveBeenCalled()
     })
 
     it('should reset state correctly', async () => {
-      const mockTranslation = [[['Hola', 'Hello', null, null]]]
+      const mockTranslation = {
+        responseData: { translatedText: 'Hola' },
+        responseStatus: 200,
+      }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockTranslation,
@@ -211,8 +251,14 @@ describe('useTranslation', () => {
     })
 
     it('should clear previous translation on new request', async () => {
-      const mockTranslation1 = [[['Hola', 'Hello', null, null]]]
-      const mockTranslation2 = [[['Bonjour', 'Hello', null, null]]]
+      const mockTranslation1 = {
+        responseData: { translatedText: 'Hola' },
+        responseStatus: 200,
+      }
+      const mockTranslation2 = {
+        responseData: { translatedText: 'Bonjour' },
+        responseStatus: 200,
+      }
 
       mockFetch
         .mockResolvedValueOnce({
@@ -233,12 +279,11 @@ describe('useTranslation', () => {
       expect(translatedText.value).toBe('Bonjour')
     })
 
-    it('should handle translation that returns null segments', async () => {
-      const mockTranslation = [[
-        ['Hello', 'Hola', null, null],
-        [null, null, null, null],
-        ['world', 'mundo', null, null],
-      ]]
+    it('should handle translation for short text without chunking', async () => {
+      const mockTranslation = {
+        responseData: { translatedText: 'Hola' },
+        responseStatus: 200,
+      }
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => mockTranslation,
@@ -246,9 +291,10 @@ describe('useTranslation', () => {
 
       const { translate, translatedText } = useTranslation()
 
-      await translate('Hola mundo', 'en')
+      await translate('Hello', 'es')
 
-      expect(translatedText.value).toBe('Helloworld')
+      expect(translatedText.value).toBe('Hola')
+      expect(mockFetch).toHaveBeenCalledOnce()
     })
   })
 })

@@ -71,48 +71,77 @@ export function useTranslation(): UseTranslationReturn {
     translatedText.value = ''
 
     try {
-      // Using Google Translate's unofficial API
-      // For production: use official Google Cloud Translation API with key from config
-      const apiUrl = 'https://translate.googleapis.com/translate_a/single'
-      const params = new URLSearchParams({
-        client: 'gtx',
-        sl: sourceLang,
-        tl: targetLang,
-        dt: 't',
-        q: text,
-      })
+      // Using MyMemory Translation API (free, no API key required, CORS-enabled)
+      // Limit: 10,000 words/day for anonymous usage
+      // For production: consider using Google Cloud Translation API with key from config
 
-      const response = await fetch(`${apiUrl}?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      // Split text into chunks if too long (MyMemory has a 500 character limit per request)
+      const maxChunkLength = 500
+      const chunks: string[] = []
 
-      if (!response.ok) {
-        throw new Error(`Translation failed with status: ${response.status}`)
-      }
+      if (text.length > maxChunkLength) {
+        // Split by sentences or paragraphs
+        const sentences = text.split(/([.!?]\s+)/)
+        let currentChunk = ''
 
-      const data = await response.json() as unknown
-
-      // Parse Google Translate response format
-      // Response is an array where first element contains translation segments
-      if (Array.isArray(data) && data[0] && Array.isArray(data[0])) {
-        const translatedSegments = data[0]
-          .map((segment: unknown[]) => {
-            if (Array.isArray(segment) && typeof segment[0] === 'string') {
-              return segment[0]
-            }
-            return null
-          })
-          .filter((text): text is string => text !== null)
-          .join('')
-
-        translatedText.value = translatedSegments
+        for (const sentence of sentences) {
+          if ((currentChunk + sentence).length <= maxChunkLength) {
+            currentChunk += sentence
+          }
+          else {
+            if (currentChunk)
+              chunks.push(currentChunk)
+            currentChunk = sentence
+          }
+        }
+        if (currentChunk)
+          chunks.push(currentChunk)
       }
       else {
-        throw new Error('Invalid response format from translation service')
+        chunks.push(text)
       }
+
+      // Translate all chunks
+      const translatedChunks: string[] = []
+
+      for (const chunk of chunks) {
+        const apiUrl = 'https://api.mymemory.translated.net/get'
+
+        // MyMemory API doesn't support 'auto' - if auto is specified, just send the text
+        // and let the API detect the language by not specifying source language explicitly
+        // Use empty string for source to let API auto-detect
+        const langPair = sourceLang === 'auto' ? `en|${targetLang}` : `${sourceLang}|${targetLang}`
+
+        const params = new URLSearchParams({
+          q: chunk,
+          langpair: langPair,
+        })
+
+        const response = await fetch(`${apiUrl}?${params.toString()}`, {
+          method: 'GET',
+        })
+
+        if (!response.ok) {
+          throw new Error(`Translation failed with status: ${response.status}`)
+        }
+
+        const data = await response.json() as {
+          responseData?: { translatedText?: string }
+          responseStatus?: number
+        }
+
+        if (data.responseData?.translatedText) {
+          translatedChunks.push(data.responseData.translatedText)
+        }
+        else if (data.responseStatus === 403) {
+          throw new Error('Translation quota exceeded. Please try again later.')
+        }
+        else {
+          throw new Error('Invalid response format from translation service')
+        }
+      }
+
+      translatedText.value = translatedChunks.join('')
     }
     catch (error_) {
       error.value = error_ instanceof Error ? error_.message : 'Translation failed'
