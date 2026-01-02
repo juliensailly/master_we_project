@@ -41,8 +41,10 @@ describe('# WeatherWidget', () => {
       getUserLocation: mockGetUserLocation,
     })
 
-    const { getByText } = render(WeatherWidget)
+    const { container } = render(WeatherWidget)
+    const loadingElement = container.querySelector('.weather-loading')
 
-    expect(getByText('')).toBeInTheDocument()
+    expect(loadingElement).toBeInTheDocument()
+    expect(loadingElement?.textContent).toBe('⏳')
   })
 })
