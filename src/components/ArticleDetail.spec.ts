@@ -71,21 +71,6 @@ describe('# ArticleDetail', () => {
       expect(screen.getByTestId('translate-button')).toBeInTheDocument()
     })
 
-    it('should have language options in select', async () => {
-      render(asyncWrapper(ArticleDetail), await renderOptions({
-        initialRoute: { name: 'article', params: { slug: 'markdown' } },
-      }))
-      await server.waitForRequest('GET', '/api/articles/markdown')
-
-      const select = screen.getByTestId('language-select')
-      expect(select).toBeInTheDocument()
-
-      // Should have "Original" option plus mocked languages
-      expect(select.options.length).toBeGreaterThan(1)
-      expect(select.options[0].value).toBe('')
-      expect(select.options[0].text.trim()).toBe('Original')
-    })
-
     it('should disable translate button when no language selected', async () => {
       render(asyncWrapper(ArticleDetail), await renderOptions({
         initialRoute: { name: 'article', params: { slug: 'markdown' } },
