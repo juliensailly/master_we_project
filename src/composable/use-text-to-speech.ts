@@ -56,6 +56,13 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
 
     // eslint-disable-next-line unicorn/prefer-add-event-listener
     currentUtterance.onerror = event => {
+      // Ignore cancelled/interrupted errors (these happen when user stops speech)
+      if (event.error === 'canceled' || event.error === 'interrupted') {
+        isSpeaking.value = false
+        isPaused.value = false
+        currentUtterance = null
+        return
+      }
       error.value = `Speech error: ${event.error}`
       isSpeaking.value = false
       isPaused.value = false

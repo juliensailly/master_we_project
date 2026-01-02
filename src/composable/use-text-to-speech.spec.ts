@@ -198,6 +198,44 @@ describe('useTextToSpeech', () => {
       expect(isSpeaking.value).toBe(false)
       expect(error.value).toContain('Speech error')
     })
+
+    it('should ignore canceled error', () => {
+      const { speak, isSpeaking, error } = useTextToSpeech()
+      const MockSpeechSynthesisErrorEvent = (globalThis as any).SpeechSynthesisErrorEvent
+
+      speak('Hello world')
+      expect(isSpeaking.value).toBe(true)
+
+      if (capturedUtterance && capturedUtterance.onerror) {
+        const errorEvent = new MockSpeechSynthesisErrorEvent('error', {
+          utterance: capturedUtterance,
+          error: 'canceled',
+        })
+        capturedUtterance.onerror(errorEvent)
+      }
+
+      expect(isSpeaking.value).toBe(false)
+      expect(error.value).toBeNull()
+    })
+
+    it('should ignore interrupted error', () => {
+      const { speak, isSpeaking, error } = useTextToSpeech()
+      const MockSpeechSynthesisErrorEvent = (globalThis as any).SpeechSynthesisErrorEvent
+
+      speak('Hello world')
+      expect(isSpeaking.value).toBe(true)
+
+      if (capturedUtterance && capturedUtterance.onerror) {
+        const errorEvent = new MockSpeechSynthesisErrorEvent('error', {
+          utterance: capturedUtterance,
+          error: 'interrupted',
+        })
+        capturedUtterance.onerror(errorEvent)
+      }
+
+      expect(isSpeaking.value).toBe(false)
+      expect(error.value).toBeNull()
+    })
   })
 
   describe('pause', () => {

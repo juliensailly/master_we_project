@@ -188,7 +188,14 @@ function handleSpeak() {
     resume()
   }
   else {
-    const textToRead = `${article.title}. ${article.body}`
+    // Use translated text if available, otherwise use original
+    const titleToRead = isTranslated.value && translatedTitleText.value
+      ? translatedTitleText.value
+      : article.title
+    const bodyToRead = isTranslated.value && translatedBody.value
+      ? translatedBody.value
+      : article.body
+    const textToRead = `${titleToRead}. ${bodyToRead}`
     speak(textToRead)
   }
 }
