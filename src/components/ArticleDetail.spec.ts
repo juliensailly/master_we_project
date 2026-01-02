@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/vue'
 import fixtures from 'src/utils/test/fixtures'
@@ -8,9 +9,9 @@ import ArticleDetail from './ArticleDetail.vue'
 vi.mock('src/composable/use-translation', () => ({
   useTranslation: vi.fn(() => ({
     translate: vi.fn().mockResolvedValue(undefined),
-    translatedText: { value: '' },
-    isTranslating: { value: false },
-    error: { value: null },
+    translatedText: ref(''),
+    isTranslating: ref(false),
+    error: ref(null),
     reset: vi.fn(),
   })),
   getSupportedLanguages: vi.fn(() => ({
@@ -99,9 +100,9 @@ describe('# ArticleDetail', () => {
       const { useTranslation } = await import('src/composable/use-translation')
       vi.mocked(useTranslation).mockReturnValue({
         translate: vi.fn(),
-        translatedText: { value: '' },
-        isTranslating: { value: true },
-        error: { value: null },
+        translatedText: ref(''),
+        isTranslating: ref(true),
+        error: ref(null),
         reset: vi.fn(),
       })
 
@@ -119,9 +120,9 @@ describe('# ArticleDetail', () => {
       const { useTranslation } = await import('src/composable/use-translation')
       vi.mocked(useTranslation).mockReturnValue({
         translate: vi.fn(),
-        translatedText: { value: '' },
-        isTranslating: { value: false },
-        error: { value: 'Translation failed' },
+        translatedText: ref(''),
+        isTranslating: ref(false),
+        error: ref('Translation failed'),
         reset: vi.fn(),
       })
 
