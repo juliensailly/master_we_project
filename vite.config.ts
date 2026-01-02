@@ -11,7 +11,6 @@ const allowAnalysis = process.env.ANALYZE === 'true'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/master_we_project/',
   resolve: {
     alias: {
       src: fileURLToPath(new URL('src', import.meta.url)),
