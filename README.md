@@ -1,75 +1,167 @@
-# ![RealWorld Example App](logo.png)
+# Projet Web Engineering
 
-[![Codecov branch](https://img.shields.io/codecov/c/github/mutoe/vue3-realworld-example-app/master?logo=codecov&style=for-the-badge)](https://app.codecov.io/gh/mutoe/vue3-realworld-example-app/branch/master)
-[![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/mutoe/vue3-realworld-example-app/test.yml?logo=github&style=for-the-badge)](https://github.com/mutoe/vue3-realworld-example-app/actions?query=branch%3Amaster)
-[![code style](https://img.shields.io/badge/Code_Style-Anthony_Fu-333?style=for-the-badge&logo=eslint)](https://github.com/anthony/eslint-config)
+> **Application développée dans le cadre d'un projet de Master, par Ewen Carré et Julien Sailly.**
 
-> ### [Vue3](https://v3.vuejs.org/) codebase containing real world examples (CRUD, auth, advanced patterns, etc) that adheres to the [RealWorld](https://github.com/gothinkster/realworld) spec and API.
+## Installation et lancement
 
-- [Demo](https://vue3-realworld-example-app-mutoe.vercel.app)
-- [RealWorld](https://github.com/gothinkster/realworld)
+### Prérequis
 
-This codebase was created to demonstrate a fully fledged fullstack application built with **Vue3** including CRUD operations, authentication, routing, pagination, and more.
+- **Node.js** (version 18 ou supérieure)
+- **pnpm** (gestionnaire de paquets)
 
-We've gone to great lengths to adhere to the **Vue3** community styleguides & best practices.
+### Installation de pnpm (si nécessaire)
 
-For more information on how to this works with other frontends/backends, head over to the [RealWorld](https://github.com/gothinkster/realworld) repo.
-
-# What works?
-
-- [x] [Vite](https://github.com/vitejs/vite)
-- [x] [Composition API](https://composition-api.vuejs.org/)
-- [x] [SFC \<script setup> sugar](https://v3.vuejs.org/api/sfc-script-setup.html)
-- [x] [Suspense](https://v3.vuejs.org/guide/component-dynamic-async.html#using-with-suspense) (Experimental)
-- [x] [Vue router](https://next.router.vuejs.org/)
-- [x] [Pinia](https://pinia.vuejs.org/) for state management
-- [x] [TypeScript](https://www.typescriptlang.org/) and [Vue tsc](https://github.com/johnsoncodehk/volar/tree/master/vue-language-tools/vue-tsc) for static analysis
-- [x] [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) for auto generate interface from swagger
-- [x] [ESLint](https://eslint.vuejs.org/) and [@mutoe/eslint-config](https://github.com/mutoe/eslint-config) for linting and styling (based on [@anthony/eslint-config](https://github.com/anthony/eslint-config))
-- [x] [Vitest](https://vitest.dev/) for unit testing
-- [x] [Testing Library](https://testing-library.com/docs/vue-testing-library/intro/) for component testing
-- [x] [Playwright](https://playwright.dev) for E2E and visual testing
-- [x] [GitHub Actions](https://docs.github.com/en/actions) CI/CD
-
-> Basically, some of they are necessary features for the development of medium to large projects, and you can also use this repository as a starter.
->
-> Enjoy it! 😄
-
-# Getting started
-
-```shell script
-pnpm install
-
-# Development
-pnpm dev
-
-# Build dist
-pnpm build
-
-# Run unit tests
-pnpm test:unit
-pnpm test:unit:ci
-
-# Run E2E tests
-pnpm test:e2e
-pnpm test:e2e:ci
+```bash
+npm install -g pnpm
 ```
 
-# Contributors
+### Installation des dépendances
 
-<a href="https://github.com/mutoe/vue3-realworld-example-app/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=mutoe/vue3-realworld-example-app" />
-</a>
+```bash
+pnpm install
+```
 
-Made with [contributors-img](https://contributors-img.web.app).
+### Lancement en mode développement
 
-## Vue related implementations of the Realworld app
+```bash
+pnpm dev
+```
 
-- [gothinkster/vue-realworld-example-app](https://github.com/gothinkster/vue-realworld-example-app) - vue2, js
-- [AlexBrohshtut/vue-ts-realworld-app](https://github.com/AlexBrohshtut/vue-ts-realworld-app) - vue2, ts, class-component
-- [devJang/nuxt-realworld](https://github.com/devJang/nuxt-realworld) - nuxt, ts, composition api
-- [levchak0910/vue3-ssr-realworld-example-app](https://github.com/levchak0910/vue3-ssr-realworld-example-app) - vue3, ssr
+## Fonctionnalités implémentées
 
-## Sponsor
+Ce projet contient trois fonctionnalités principales développées dans le cadre du projet :
 
-Thanks **JetBrains** for providing IDE support!
+### 1. Traduction d'articles
+
+**Branche :** `feature/article-translation`
+
+**Description :**
+Permet de traduire le contenu des articles en 16 langues différentes grâce à l'API MyMemory Translation.
+
+**Fonctionnalités :**
+- Sélecteur de langue dans la page de détail d'un article
+- Traduction du titre et du contenu de l'article
+- Support de 16 langues : Français, Espagnol, Allemand, Italien, Portugais, Russe, Japonais, Coréen, Chinois, Arabe, Hindi, Néerlandais, Polonais, Turc, Suédois, Danois
+- Gestion des états de chargement et d'erreur
+- Persistance de la traduction lors de la navigation
+
+**Fichiers principaux :**
+- `src/composable/use-translation.ts` : Logique de traduction
+- `src/components/ArticleDetail.vue` : Interface utilisateur avec sélecteur de langue
+- Tests : `src/composable/use-translation.spec.ts`
+
+**API utilisée :** [MyMemory Translation API](https://mymemory.translated.net/) (gratuite, sans clé API requise)
+
+### 2. Text-to-Speech (TTS)
+
+**Branche :** `feature/article-tts`
+
+**Description :**
+Permet d'écouter le contenu des articles grâce à la synthèse vocale du navigateur (Web Speech API).
+
+**Fonctionnalités :**
+- Bouton lecture/pause/arrêt pour contrôler la lecture audio
+- Lecture du titre et du contenu de l'article
+- **Adaptation automatique de la langue** : lorsqu'un article est traduit, le TTS utilise la langue de traduction appropriée (ex: voix française pour une traduction en français)
+- Support de 15+ langues avec mapping automatique (fr → fr-FR, es → es-ES, etc.)
+- Indicateur visuel de l'état de lecture
+- Gestion des erreurs sans affichage intrusif (filtrage des erreurs "canceled" et "interrupted")
+- Contrôles accessibles au clavier
+
+**Fichiers principaux :**
+- `src/composable/use-text-to-speech.ts` : Logique TTS avec gestion des erreurs
+- `src/components/ArticleDetail.vue` : Intégration avec fonction `getTTSLanguage()` pour mapper les codes de langue
+- Tests : `src/composable/use-text-to-speech.spec.ts` (19 tests), `src/components/ArticleDetail.spec.ts` (13 tests)
+
+**API utilisée :** [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) (native au navigateur)
+
+**Améliorations apportées :**
+- Filtrage des erreurs `canceled` et `interrupted` pour éviter l'affichage d'erreurs lors de l'arrêt manuel
+- Lecture du texte traduit au lieu du texte original quand une traduction est active
+- Changement automatique de la langue TTS en fonction de la langue de traduction
+
+### 3. Widget Météo
+
+**Branche :** `feature/meteo-and-location`
+
+**Description :**
+Widget météo intégré dans la barre de navigation, affichant les informations météorologiques en temps réel.
+
+**Fonctionnalités :**
+- **Affichage compact** : emoji météo + température dans la navbar
+- **Vue détaillée** : ville, température, description, vitesse du vent, humidité
+- **Localisation par défaut** : Paris (France)
+- **Géolocalisation** : bouton "Ma Position" pour obtenir la météo de la position actuelle de l'utilisateur
+- **Emojis météo** : représentation visuelle intuitive (soleil, nuages, pluie, orage, neige, brouillard)
+- **Accessibilité** : navigation au clavier (Enter/Espace pour ouvrir/fermer)
+- **Responsive** : s'adapte à toutes les tailles d'écran
+
+**Fichiers principaux :**
+- `src/composable/use-weather.ts` : Logique de récupération des données météo
+- `src/components/WeatherWidget.vue` : Interface utilisateur du widget
+- `src/components/AppNavigation.vue` : Intégration dans la navbar
+- Tests : `src/composable/use-weather.spec.ts` (8 tests, 88.33% de couverture)
+- Documentation : `WEATHER_WIDGET.md`
+
+**API utilisée :** [Open-Meteo API](https://open-meteo.com/) (100% gratuite, sans clé API requise)
+- API de géocodage pour convertir nom de ville → coordonnées
+- API météo pour récupérer les données actuelles
+- Utilise les codes WMO pour la description météo
+
+## Branches de développement
+
+Le projet utilise une stratégie de branches Git pour organiser le développement :
+
+- **`main`** : Branche principale contenant le code stable et fusionné
+- **`feature/article-translation`** : Développement de la fonctionnalité de traduction (TP1)
+- **`feature/article-tts`** : Développement de la fonctionnalité TTS (TP2)
+- **`feature/meteo-and-location`** : Développement du widget météo (TP3)
+
+Chaque fonctionnalité a été développée dans sa propre branche feature, testée, puis fusionnée dans `main`.
+
+## Tests
+
+Le projet maintient une excellente couverture de tests :
+
+### Tests unitaires (Vitest)
+
+```bash
+pnpm test:unit
+```
+
+**Couverture par fonctionnalité :**
+- **Traduction** : Tests complets avec mocks de l'API MyMemory
+- **TTS** : 19 tests pour le composable + 13 tests pour le composant ArticleDetail
+- **Météo** : 8 tests avec 88.33% de couverture du composable
+
+### Tests E2E (Playwright)
+
+```bash
+pnpm test:e2e
+```
+
+Tests d'intégration couvrant les parcours utilisateurs complets.
+
+---
+
+## Technologies utilisées
+
+### Framework et langages
+- Vue
+- TypeScript
+- Vite
+
+### State Management et Routing
+- Pinia
+- Vue Router
+
+### Tests
+- Vitest
+- Testing Library
+- Playwright
+
+### APIs externes
+- MyMemory Translation API
+- Open-Meteo API
+- Web Speech API
+- Geolocation API
