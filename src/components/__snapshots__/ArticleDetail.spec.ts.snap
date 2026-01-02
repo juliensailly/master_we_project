@@ -4,6 +4,7 @@ exports[`# ArticleDetail > should filter the xss content in Markdown body 1`] = 
 <div
   class="col-md-12"
   data-testid="article-body"
+  data-v-ff319ab5=""
   id="article-content"
 >
   
@@ -19,6 +20,7 @@ exports[`# ArticleDetail > should render markdown (zh-CN) body correctly 1`] = `
 <div
   class="col-md-12"
   data-testid="article-body"
+  data-v-ff319ab5=""
   id="article-content"
 >
   <h1>
@@ -1206,6 +1208,7 @@ exports[`# ArticleDetail > should render markdown body correctly 1`] = `
 <div
   class="col-md-12"
   data-testid="article-body"
+  data-v-ff319ab5=""
   id="article-content"
 >
   <h1>
