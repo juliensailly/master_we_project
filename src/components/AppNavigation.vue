@@ -8,27 +8,32 @@
         conduit
       </AppLink>
 
-      <ul class="nav navbar-nav pull-xs-right">
-        <li
-          v-for="link in navLinks"
-          :key="link.name"
-          class="nav-item"
-        >
-          <AppLink
-            class="nav-link"
-            :aria-label="link.title"
-            :name="link.name"
-            active-class="active"
-            :params="link.params"
+      <div class="navbar-right">
+        <ul class="nav navbar-nav pull-xs-right">
+          <li
+            v-for="link in navLinks"
+            :key="link.name"
+            class="nav-item"
           >
-            <i
-              v-if="link.icon"
-              :class="link.icon"
-            />
-            {{ link.title }}
-          </AppLink>
-        </li>
-      </ul>
+            <AppLink
+              class="nav-link"
+              :aria-label="link.title"
+              :name="link.name"
+              active-class="active"
+              :params="link.params"
+            >
+              <i
+                v-if="link.icon"
+                :class="link.icon"
+              />
+              {{ link.title }}
+            </AppLink>
+          </li>
+          <li class="nav-item weather-nav-item">
+            <WeatherWidget />
+          </li>
+        </ul>
+      </div>
     </div>
   </nav>
 </template>
@@ -39,6 +44,7 @@ import type { RouteParams } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import type { AppRouteNames } from 'src/router'
 import { useUserStore } from 'src/store/user'
+import WeatherWidget from './WeatherWidget.vue'
 
 interface NavLink {
   name: AppRouteNames
@@ -93,3 +99,16 @@ const navLinks = computed(() => allNavLinks.value.filter(
   l => l.display === displayStatus.value || l.display === 'all',
 ))
 </script>
+
+<style scoped>
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.weather-nav-item {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+}
+</style>
