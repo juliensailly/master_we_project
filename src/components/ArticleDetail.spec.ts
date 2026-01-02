@@ -77,7 +77,7 @@ describe('# ArticleDetail', () => {
       }))
       await server.waitForRequest('GET', '/api/articles/markdown')
 
-      const select = screen.getByTestId('language-select') as HTMLSelectElement
+      const select = screen.getByTestId('language-select')
       expect(select).toBeInTheDocument()
 
       // Should have "Original" option plus mocked languages
