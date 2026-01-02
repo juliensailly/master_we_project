@@ -69,9 +69,9 @@ export function useTextToSpeech(): UseTextToSpeechReturn {
       currentUtterance = null
     }
 
-    currentUtterance.addEventListener('pause', () => {
+    currentUtterance.onpause = () => {
       isPaused.value = true
-    })
+    }
 
     currentUtterance.onresume = () => {
       isPaused.value = false
